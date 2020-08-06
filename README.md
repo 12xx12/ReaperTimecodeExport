@@ -6,4 +6,4 @@ A small python script to convert the csv files exported from Reaper to a xml for
 
 you can configure stuff by hand but i just throw it togehther that it worked
 
-usage: main.py [filename with .csv]
+usage: ReaperTimecodExport.py [filename with .csv]
