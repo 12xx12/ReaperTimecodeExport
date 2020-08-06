@@ -132,6 +132,7 @@ dmypy.json
 *.xml
 
 # Default ignored files
+/.idea/
 /shelf/
 /workspace.xml
 # Datasource local storage ignored files
