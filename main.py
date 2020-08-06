@@ -4,42 +4,48 @@ from datetime import datetime
 
 from lxml import etree as xml
 
-sequencenumber = 1
-pagenumber = 1
-execnumber = 1
-fadetime = 1
+sequenceNumber = 1      # the number of the sequence to export to
+pageNumber = 1          # the number of the page of the executor to save to
+execNumber = 1          # the number of the executor to save to
+fadeTime = 1            # default fade time - exported to every cue
+
+timeCodeSlot = 1        # the timecode slot to read from
+autoStart = True        # enable autostart for the exec
 
 
-def minutestoframes(time: str):
+# converts the time given in HH:MM::SS:Frames to a time in Frames
+def minutesToFrames(time: str):
     times = time.split(":")
     res = 0
-    for i, timeunit in enumerate(times):
+    for i, timeUnit in enumerate(times):
         if i == 0:
-            res += int(timeunit) * 30 * 60 * 60
+            res += int(timeUnit) * 30 * 60 * 60
         elif i == 1:
-            res += int(timeunit) * 30 * 60
+            res += int(timeUnit) * 30 * 60
         elif i == 2:
-            res += int(timeunit) * 30
+            res += int(timeUnit) * 30
         elif i == 3:
-            res += int(timeunit)
+            res += int(timeUnit)
     return str(res)
 
+
+# ---------------------------------------------------------------------------------------------------------------------
+# reads the input file and writes everything in one array
 
 array = []
 with open(sys.argv[1], 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     for i, row in enumerate(reader):
-        helperarry = []
+        helperArry = []
         for j, element in enumerate(row):
             # # = 0
             # Name = 1
             # Start = 2
-            # print(i, element)
             if row[element] != "":
-                helperarry.append(row[element])
-        array.append(helperarry)
+                helperArry.append(row[element])
+        array.append(helperArry)
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # creating the timecode file
 
 MA = xml.XML("<MA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -55,11 +61,12 @@ Info.set("showfile", "Insert funny name here")
 TimeCode = xml.SubElement(MA, "Timecode")
 TimeCode.set("index", "0")
 TimeCode.set("name", sys.argv[1][:-4])
-TimeCode.set("lenght", minutestoframes(array[len(array) - 1][2]))
-TimeCode.set("slot", "TC Slot 1")
+TimeCode.set("length", minutesToFrames(array[len(array) - 1][2]))
+TimeCode.set("slot", "TC Slot " + str(timeCodeSlot))
 TimeCode.set("frame_format", "30 FPS")
 TimeCode.set("m_autostart", "true")
-TimeCode.set("no_status_call", "true")
+if autoStart:
+    TimeCode.set("no_status_call", "true")
 
 Track = xml.SubElement(TimeCode, "Track")
 Track.set("index", "0")
@@ -67,27 +74,28 @@ Track.set("active", "true")
 Track.set("expanded", "true")
 
 Object = xml.SubElement(Track, "Object")
-Object.set("name", sys.argv[1][:-4] + " " + str(pagenumber) + "." + str(execnumber))
+Object.set("name", sys.argv[1][:-4] + " " + str(pageNumber) + "." + str(execNumber))
 
+# this seems to be the type no of page
 Type = xml.SubElement(Object, "No")
 Type.text = "30"
 
 sequence = xml.SubElement(Object, "No")
-sequence.text = str(sequencenumber)
+sequence.text = str(sequenceNumber)
 
 Page = xml.SubElement(Object, "No")
-Page.text = str(pagenumber)
+Page.text = str(pageNumber)
 
 Exec = xml.SubElement(Object, "No")
-Exec.text = str(execnumber)
+Exec.text = str(execNumber)
 
-Subtrack = xml.SubElement(Track, "SubTrack")
-Subtrack.set("index", "0")
+SubTrack = xml.SubElement(Track, "SubTrack")
+SubTrack.set("index", "0")
 
 for i, e in enumerate(array):
-    Event = xml.SubElement(Subtrack, "Event")
+    Event = xml.SubElement(SubTrack, "Event")
     Event.set("index", str(i))
-    Event.set("time", minutestoframes(e[2]))
+    Event.set("time", minutesToFrames(e[2]))
     Event.set("command", "Goto")
     Event.set("pressed", "true")
     Event.set("step", str(i + 1))
@@ -96,9 +104,9 @@ for i, e in enumerate(array):
     theOneEverywhere = xml.SubElement(Cue, "No")
     theOneEverywhere.text = "1"
     Sequence = xml.SubElement(Cue, "No")
-    Sequence.text = str(sequencenumber)
-    Cuenumber = xml.SubElement(Cue, "No")
-    Cuenumber.text = str(i + 1)
+    Sequence.text = str(sequenceNumber)
+    CueNumber = xml.SubElement(Cue, "No")
+    CueNumber.text = str(i + 1)
 
 tree = xml.ElementTree(MA)
 tree.write("importexport\export.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
@@ -128,24 +136,24 @@ for i, e in enumerate(array):
     Macroline = xml.SubElement(Macro, "Macroline")
     Macroline.set("index", str(j))
     text = xml.SubElement(Macroline, "text")
-    text.text = "Store Sequence " + str(sequencenumber) + " Cue " + str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
+    text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
     j += 1
     Macroline = xml.SubElement(Macro, "Macroline")
     Macroline.set("index", str(j))
     text = xml.SubElement(Macroline, "text")
-    text.text = "Assign Sequence " + str(sequencenumber) + " Cue " + str(i + 1) + " /fade=" + str(fadetime) + ".00 "
+    text.text = "Assign Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " /fade=" + str(fadeTime) + ".00 "
     j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Label Sequence " + str(sequencenumber) + " \"" + sys.argv[1][:-4] + "\""
+text.text = "Label Sequence " + str(sequenceNumber) + " \"" + sys.argv[1][:-4] + "\""
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Assign Sequence " + str(sequencenumber) + " At Exec 1." + str(pagenumber) + "." + str(execnumber)
+text.text = "Assign Sequence " + str(sequenceNumber) + " At Exec 1." + str(pageNumber) + "." + str(execNumber)
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
