@@ -13,11 +13,17 @@ fadeTime = 1  # default fade time - exported to every cue
 timeCodeSlot = 2  # the timecode slot to read from
 autoStart = True  # enable autostart for the exec
 
-try:
-    os.mkdir("importexport")
-    os.mkdir("macros")
-except OSError:
-    print("Creation of the directory %s failed")
+if not os.path.isdir("./importexport"):
+    try:
+        os.mkdir("importexport")
+    except OSError as err:
+        print(format(err))
+
+if not os.path.isdir("./macros"):
+    try:
+        os.mkdir("macros")
+    except OSError as err:
+        print(format(err))
 
 
 # converts the time given in HH:MM::SS:Frames to a time in Frames
