@@ -1,16 +1,23 @@
 import csv
+import os
 import sys
 from datetime import datetime
 
 from lxml import etree as xml
 
-sequenceNumber = 1      # the number of the sequence to export to
-pageNumber = 1          # the number of the page of the executor to save to
-execNumber = 1          # the number of the executor to save to
-fadeTime = 1            # default fade time - exported to every cue
+sequenceNumber = 1  # the number of the sequence to export to
+pageNumber = 1  # the number of the page of the executor to save to
+execNumber = 1  # the number of the executor to save to
+fadeTime = 1  # default fade time - exported to every cue
 
-timeCodeSlot = 1        # the timecode slot to read from
-autoStart = True        # enable autostart for the exec
+timeCodeSlot = 2  # the timecode slot to read from
+autoStart = True  # enable autostart for the exec
+
+try:
+    os.mkdir("importexport")
+    os.mkdir("macros")
+except OSError:
+    print("Creation of the directory %s failed")
 
 
 # converts the time given in HH:MM::SS:Frames to a time in Frames
@@ -38,11 +45,7 @@ with open(sys.argv[1], 'r') as csvfile:
     for i, row in enumerate(reader):
         helperArry = []
         for j, element in enumerate(row):
-            # # = 0
-            # Name = 1
-            # Start = 2
-            if row[element] != "":
-                helperArry.append(row[element])
+            helperArry.append(row[element])
         array.append(helperArry)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -100,7 +103,10 @@ for i, e in enumerate(array):
     Event.set("pressed", "true")
     Event.set("step", str(i + 1))
     Cue = xml.SubElement(Event, "Cue")
-    Cue.set("name", e[1])
+    if e[1]:
+        Cue.set("name", e[1])
+    else:
+        Cue.set("name", str(i + 1))
     theOneEverywhere = xml.SubElement(Cue, "No")
     theOneEverywhere.text = "1"
     Sequence = xml.SubElement(Cue, "No")
@@ -136,7 +142,10 @@ for i, e in enumerate(array):
     Macroline = xml.SubElement(Macro, "Macroline")
     Macroline.set("index", str(j))
     text = xml.SubElement(Macroline, "text")
-    text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
+    if array[i][1]:
+        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
+    else:
+        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + str(i + 1) + "\" /o /nc"
     j += 1
     Macroline = xml.SubElement(Macro, "Macroline")
     Macroline.set("index", str(j))
