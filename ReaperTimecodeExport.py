@@ -1,14 +1,46 @@
+"""
+
+    A simple (and shitty) script to read a Reaper created .csv file and convert it to a macro and a timecode sheet
+    Author: 12xx12 - 12xx12@gmail.com
+    dependency lxml: pip install lxml
+
+"""
+
 import csv
 import os
 import sys
 from datetime import datetime
-
 from lxml import etree as xml
+
+
+def minutesToFrames(time: str):
+    """
+    converts the time given in HH:MM::SS:Frames to a time in Frames
+    :param time: string to convert
+    :return: the time og the string in frames
+    """
+    times = time.split(":")
+    res = 0
+    for k, timeUnit in enumerate(times):
+        if k == 0:
+            res += int(timeUnit) * 30 * 60 * 60
+        elif k == 1:
+            res += int(timeUnit) * 30 * 60
+        elif k == 2:
+            res += int(timeUnit) * 30
+        elif k == 3:
+            res += int(timeUnit)
+    return str(res)
+
+
+if len(sys.argv) != 2:
+    print("Usage: ReaperTimecodeExport [your exported file.xml]")
+    exit(-1)
 
 sequenceNumber = 1  # the number of the sequence to export to
 pageNumber = 1  # the number of the page of the executor to save to
 execNumber = 1  # the number of the executor to save to
-fadeTime = 1  # default fade time - exported to every cue
+fadeTime = 0  # default fade time - exported to every cue
 
 timeCodeSlot = 2  # the timecode slot to read from
 autoStart = True  # enable autostart for the exec
@@ -25,34 +57,21 @@ if not os.path.isdir("./macros"):
     except OSError as err:
         print(format(err))
 
-
-# converts the time given in HH:MM::SS:Frames to a time in Frames
-def minutesToFrames(time: str):
-    times = time.split(":")
-    res = 0
-    for i, timeUnit in enumerate(times):
-        if i == 0:
-            res += int(timeUnit) * 30 * 60 * 60
-        elif i == 1:
-            res += int(timeUnit) * 30 * 60
-        elif i == 2:
-            res += int(timeUnit) * 30
-        elif i == 3:
-            res += int(timeUnit)
-    return str(res)
-
-
 # ---------------------------------------------------------------------------------------------------------------------
 # reads the input file and writes everything in one array
 
 array = []
-with open(sys.argv[1], 'r') as csvfile:
-    reader = csv.DictReader(csvfile)
-    for i, row in enumerate(reader):
-        helperArry = []
-        for j, element in enumerate(row):
-            helperArry.append(row[element])
-        array.append(helperArry)
+try:
+    with open(sys.argv[1], 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for i, row in enumerate(reader):
+            helperArry = []
+            for j, element in enumerate(row):
+                helperArry.append(row[element])
+                array.append(helperArry)
+except IOError as err:
+    print(format(err))
+    exit(-1)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # creating the timecode file
@@ -73,9 +92,9 @@ TimeCode.set("name", sys.argv[1][:-4])
 TimeCode.set("length", minutesToFrames(array[len(array) - 1][2]))
 TimeCode.set("slot", "TC Slot " + str(timeCodeSlot))
 TimeCode.set("frame_format", "30 FPS")
-TimeCode.set("m_autostart", "true")
 if autoStart:
-    TimeCode.set("no_status_call", "true")
+    TimeCode.set("m_autostart", "true")
+TimeCode.set("no_status_call", "true")
 
 Track = xml.SubElement(TimeCode, "Track")
 Track.set("index", "0")
@@ -121,7 +140,10 @@ for i, e in enumerate(array):
     CueNumber.text = str(i + 1)
 
 tree = xml.ElementTree(MA)
-tree.write("importexport\export.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+try:
+    tree.write("importexport\export.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+except IOError as err:
+    print(format(err))
 
 with open("importexport\export.xml", 'r+') as fd:
     contents = fd.readlines()
@@ -129,6 +151,8 @@ with open("importexport\export.xml", 'r+') as fd:
     contents[0] = copy[:-1] + " <?xml-stylesheet type=\"text/xsl\" href=\"styles/timecode@sheet.xsl\"?>\n"
     fd.seek(0)
     fd.writelines(contents)
+
+print("Exported the timecode file successful!")
 
 # -----------------------------------------------------------------------------------------------
 # creating the macro file
@@ -190,4 +214,13 @@ text.text = "Label Timecode 1 \"" + sys.argv[1][:-4] + "\""
 j += 1
 
 tree = xml.ElementTree(MA2)
-tree.write("Macros\macro.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+try:
+    tree.write("Macros\macro.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+except IOError as err:
+    print(format(err))
+
+print("Exported the macro file successful!")
+
+print("Now copy the two folders onto the gma2 folder on your USB-drive and import the macro and run it\n"
+      "If you are running onPC and you are loading from the internal storage you need to change the SelectDrive to 1 "
+      "im the macro")
