@@ -1,7 +1,7 @@
 """
 
     A simple (and shitty) script to read a Reaper created .csv file and convert it to a macro and a timecode sheet
-    Author: 12xx12 - 12xx12@gmail.com
+    Author: 12xx12 - 12xx12100@gmail.com
     dependency lxml: pip install lxml
 
 """
