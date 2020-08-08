@@ -10,6 +10,7 @@ import csv
 import os
 import sys
 from datetime import datetime
+
 from lxml import etree as xml
 
 
@@ -33,7 +34,7 @@ def minutesToFrames(time: str):
     return str(res)
 
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2 or len(sys.argv) > 3:
     print("Usage: ReaperTimecodeExport [your exported file.csv]")
     exit(-1)
 
@@ -141,18 +142,19 @@ for i, e in enumerate(array):
 
 tree = xml.ElementTree(MA)
 try:
-    tree.write("importexport\export.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+    tree.write("importexport/timecode" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
 except IOError as err:
     print(format(err))
 
-with open("importexport\export.xml", 'r+') as fd:
+with open("importexport/timecode" + sys.argv[1][:-4] + ".xml", 'r+') as fd:
     contents = fd.readlines()
     copy = contents[0]
     contents[0] = copy[:-1] + " <?xml-stylesheet type=\"text/xsl\" href=\"styles/timecode@sheet.xsl\"?>\n"
     fd.seek(0)
     fd.writelines(contents)
 
-print("Exported the timecode file successful!")
+if len(sys.argv) == 3 and sys.argv[2] != "--nolog":
+    print("Exported the timecode file successful!")
 
 # -----------------------------------------------------------------------------------------------
 # creating the macro file
@@ -204,7 +206,7 @@ j += 1
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Import \"export.xml\" At Timecode 1 /o"
+text.text = "Import \"timecode" + sys.argv[1][:-4] + ".xml\" At Timecode 1 /o"
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
@@ -215,12 +217,12 @@ j += 1
 
 tree = xml.ElementTree(MA2)
 try:
-    tree.write("Macros\macro.xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+    tree.write("Macros\macro" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
 except IOError as err:
     print(format(err))
+if len(sys.argv) == 3 and sys.argv[2] != "--nolog":
+    print("Exported the macro file successful!")
 
-print("Exported the macro file successful!")
-
-print("Now copy the two folders onto the gma2 folder on your USB-drive and import the macro and run it\n"
-      "If you are running onPC and you are loading from the internal storage you need to change the SelectDrive to 1 "
-      "im the macro")
+    print("Now copy the two folders onto the gma2 folder on your USB-drive and import the macro and run it\n"
+          "If you are running onPC and you are loading from the internal storage you need to change the SelectDrive"
+          " to 1 im the macro")
