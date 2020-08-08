@@ -69,7 +69,7 @@ try:
             helperArry = []
             for j, element in enumerate(row):
                 helperArry.append(row[element])
-                array.append(helperArry)
+            array.append(helperArry)
 except IOError as err:
     print(format(err))
     exit(-1)
@@ -206,7 +206,7 @@ j += 1
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Import \"timecode" + sys.argv[1][:-4] + ".xml\" At Timecode 1 /o"
+text.text = "Import \"timecode" + sys.argv[1][:-4] + "\" At Timecode 1 /o"
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
