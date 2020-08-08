@@ -6,8 +6,6 @@ A small python script to convert the csv files exported from Reaper to a xml for
 
 you can configure stuff by hand but i just throw it togehther that it worked
 
-usage: ReaperTimecodExport.py [filename with .csv]
-
 Table of Contents
 ======
 
@@ -20,6 +18,7 @@ Table of Contents
     - [My System is Mac](#Mac)
 
 # Usage
+python ReaperTimecodeExport [your exported.csv file]
 
 # Installation
 
@@ -44,18 +43,17 @@ For any system:
 For setup:
 - Double click the "easyinstall.cmd"
 If any error messages appear feel free to message me or open an issue I'll try to come back to you
-You may now remove any file *except* the "ReaperTimecodeExport.py"
+You may now remove any file *except* the "ReaperTimecodeExport.py" and "run.bat"
 
 Fou usage:
 - Move the ReaperTimecodeExport.py file and you exported csv file to the same folder
-- Do a shift right click into the folder you put yout exported files into
-- Choose: "Open command windows here"
-- copy this `python ReaperTimecodeExport.py ` and add your \*.csv file. You may autocomplete by pushing tab
-<details><summary>Explanation</summary>
-<p>
-Sorry - nothing here ATM
-</p>
-</details>
+- Run the `run.bat` file by double clicking it. This processes all .csv files in the folder
 
 <a name="Mac"></a>
 ### My System is Mac
+coming if I get a hold of a mac sometime
+
+Here is a [link](https://lifehacker.com/launch-an-os-x-terminal-window-from-a-specific-folder-1466745514) to a page that explains how to open the terminal in a folder directly.
+Open the directory you unzipped the downloaded stuff that way
+
+then proceed as described [here](#terminal)
