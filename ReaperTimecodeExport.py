@@ -38,13 +38,48 @@ if len(sys.argv) < 2 or len(sys.argv) > 3:
     print("Usage: ReaperTimecodeExport [your exported file.csv]")
     exit(-1)
 
-sequenceNumber = 1  # the number of the sequence to export to
-pageNumber = 1  # the number of the page of the executor to save to
-execNumber = 1  # the number of the executor to save to
-fadeTime = 0  # default fade time - exported to every cue
-
-timeCodeSlot = 2  # the timecode slot to read from
 autoStart = True  # enable autostart for the exec
+
+# asks the user for input values
+while True:
+    data = input("Number of the sequence to use: ")
+    if not data.isnumeric():
+        print("input is not a number")
+    else:
+        sequenceNumber = int(data)
+        break
+
+while True:
+    data = input("Number of the Page to assign the exec to: ")
+    if not data.isnumeric():
+        print("input is not a number")
+    else:
+        pageNumber = int(data)
+        break
+
+while True:
+    data = input("Number of the exec to assgin to: ")
+    if not data.isnumeric():
+        print("input is not a number")
+    else:
+        execNumber = int(data)
+        break
+
+while True:
+    data = input("Number of the sequence to use: ")
+    if not data.isnumeric():
+        print("input is not a number")
+    else:
+        fadeTime = int(data)
+        break
+
+while True:
+    data = input("Number of the timecode slot: ")
+    if not data.isnumeric():
+        print("input is not a number")
+    else:
+        timeCodeSlot = int(data)
+        break
 
 if not os.path.isdir("./importexport"):
     try:
@@ -217,12 +252,13 @@ j += 1
 
 tree = xml.ElementTree(MA2)
 try:
-    tree.write("Macros\macro" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+    tree.write("Macros/macro" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
 except IOError as err:
     print(format(err))
 if len(sys.argv) == 3 and sys.argv[2] != "--nolog":
     print("Exported the macro file successful!")
-
     print("Now copy the two folders onto the gma2 folder on your USB-drive and import the macro and run it\n"
           "If you are running onPC and you are loading from the internal storage you need to change the SelectDrive"
           " to 1 im the macro")
+else:
+    print("processed" + sys.argv[1])
