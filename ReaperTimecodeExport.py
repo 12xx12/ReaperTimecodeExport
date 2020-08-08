@@ -34,7 +34,7 @@ def minutesToFrames(time: str):
 
 
 if len(sys.argv) != 2:
-    print("Usage: ReaperTimecodeExport [your exported file.xml]")
+    print("Usage: ReaperTimecodeExport [your exported file.csv]")
     exit(-1)
 
 sequenceNumber = 1  # the number of the sequence to export to
