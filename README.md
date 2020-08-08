@@ -54,6 +54,8 @@ Fou usage:
 coming if I get a hold of a mac sometime
 
 Here is a [link](https://lifehacker.com/launch-an-os-x-terminal-window-from-a-specific-folder-1466745514) to a page that explains how to open the terminal in a folder directly.
-Open the directory you unzipped the downloaded stuff that way
+Open the directory you unzipped the downloaded stuff that way.
 
-then proceed as described [here](#terminal)
+Then proceed as described [here](#terminal)
+
+And then as described [here](#usage)
