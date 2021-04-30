@@ -1,6 +1,7 @@
 """
 
-    A simple (and shitty) script to read a Reaper created .csv file and convert it to a macro and a timecode sheet
+    A simple (and shitty) script to read a Reaper created .csv file and convert
+    it to a macro and a timecode sheet.
     Author: 12xx12 - 12xx12100@gmail.com
     dependency lxml: pip install lxml
 
@@ -93,7 +94,7 @@ if not os.path.isdir("./macros"):
     except OSError as err:
         print(format(err))
 
-# ---------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # reads the input file and writes everything in one array
 
 array = []
@@ -109,14 +110,16 @@ except IOError as err:
     print(format(err))
     exit(-1)
 
-# ---------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # creating the timecode file
 
-MA = xml.XML("<MA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-             "xmlns=\"http://schemas.malighting.de/grandma2/xml/MA\" "
-             "xsi:schemaLocation=\"http://schemas.malighting.de/grandma2/xml/MA "
-             "http://schemas.malighting.de/grandma2/xml/3.3.4/MA.xsd\" major_vers=\"3\" minor_vers=\"3\" "
-             "stream_vers=\"4\"></MA>")
+MA = xml.XML(
+    "<MA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+    "xmlns=\"http://schemas.malighting.de/grandma2/xml/MA\" "
+    "xsi:schemaLocation=\"http://schemas.malighting.de/grandma2/xml/MA "
+    "http://schemas.malighting.de/grandma2/xml/3.3.4/MA.xsd\" "
+    "major_vers=\"3\" minor_vers=\"3\" "
+    "stream_vers=\"4\"></MA>")
 
 Info = xml.SubElement(MA, "Info")
 Info.set("datetime", str(datetime.now())[:-7].replace(" ", "T"))
@@ -138,7 +141,8 @@ Track.set("active", "true")
 Track.set("expanded", "true")
 
 Object = xml.SubElement(Track, "Object")
-Object.set("name", sys.argv[1][:-4] + " " + str(pageNumber) + "." + str(execNumber))
+Object.set("name", sys.argv[1][:-4] + " " + str(pageNumber) + "." +
+           str(execNumber))
 
 # this seems to be the type no of page
 Type = xml.SubElement(Object, "No")
@@ -177,14 +181,16 @@ for i, e in enumerate(array):
 
 tree = xml.ElementTree(MA)
 try:
-    tree.write("importexport/timecode" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+    tree.write("importexport/timecode" + sys.argv[1][:-4] + ".xml",
+               encoding="UTF-8", xml_declaration=True, pretty_print=True)
 except IOError as err:
     print(format(err))
 
 with open("importexport/timecode" + sys.argv[1][:-4] + ".xml", 'r+') as fd:
     contents = fd.readlines()
     copy = contents[0]
-    contents[0] = copy[:-1] + " <?xml-stylesheet type=\"text/xsl\" href=\"styles/timecode@sheet.xsl\"?>\n"
+    contents[0] = copy[:-1] + " <?xml-stylesheet type=\"text/xsl\" " \
+                              "href=\"styles/timecode@sheet.xsl\"?>\n"
     fd.seek(0)
     fd.writelines(contents)
 
@@ -194,11 +200,14 @@ if len(sys.argv) == 3 and sys.argv[2] != "--nolog":
 # -----------------------------------------------------------------------------------------------
 # creating the macro file
 
-MA2 = xml.XML("<MA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-              "xmlns=\"http://schemas.malighting.de/grandma2/xml/MA\" "
-              "xsi:schemaLocation=\"http://schemas.malighting.de/grandma2/xml/MA "
-              "http://schemas.malighting.de/grandma2/xml/3.3.4/MA.xsd\" "
-              "major_vers=\"3\" minor_vers=\"3\" stream_vers=\"4\"></MA>")
+MA2 = xml.XML(
+    "<MA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+    "xmlns=\"http://schemas.malighting.de/grandma2/xml/MA\" "
+    "xsi:schemaLocation=\"http://schemas.malighting.de/grandma2/xml/MA "
+    "http://schemas.malighting.de/grandma2/xml/3.3.4/MA.xsd\" "
+    "major_vers=\"3\" minor_vers=\"3\" stream_vers=\"4\"></MA>"
+)
+
 Macro = xml.SubElement(MA2, "Macro")
 Macro.set("index", "1")
 Macro.set("name", "import" + sys.argv[1][:-4])
@@ -210,26 +219,31 @@ for i, e in enumerate(array):
     Macroline.set("index", str(j))
     text = xml.SubElement(Macroline, "text")
     if array[i][1]:
-        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
+        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " +\
+                    str(i + 1) + " \"" + array[i][1] + "\" /o /nc"
     else:
-        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " \"" + str(i + 1) + "\" /o /nc"
+        text.text = "Store Sequence " + str(sequenceNumber) + " Cue " +\
+                    str(i + 1) + " \"" + str(i + 1) + "\" /o /nc"
     j += 1
     Macroline = xml.SubElement(Macro, "Macroline")
     Macroline.set("index", str(j))
     text = xml.SubElement(Macroline, "text")
-    text.text = "Assign Sequence " + str(sequenceNumber) + " Cue " + str(i + 1) + " /fade=" + str(fadeTime) + ".00 "
+    text.text = "Assign Sequence " + str(sequenceNumber) + " Cue " +\
+                str(i + 1) + " /fade=" + str(fadeTime) + ".00 "
     j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Label Sequence " + str(sequenceNumber) + " \"" + sys.argv[1][:-4] + "\""
+text.text = "Label Sequence " + str(sequenceNumber) + " \"" + \
+            sys.argv[1][:-4] + "\""
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
 Macroline.set("index", str(j))
 text = xml.SubElement(Macroline, "text")
-text.text = "Assign Sequence " + str(sequenceNumber) + " At Exec 1." + str(pageNumber) + "." + str(execNumber)
+text.text = "Assign Sequence " + str(sequenceNumber) + " At Exec 1." +\
+            str(pageNumber) + "." + str(execNumber)
 j += 1
 
 Macroline = xml.SubElement(Macro, "Macroline")
@@ -252,13 +266,16 @@ j += 1
 
 tree = xml.ElementTree(MA2)
 try:
-    tree.write("Macros/macro" + sys.argv[1][:-4] + ".xml", encoding="UTF-8", xml_declaration=True, pretty_print=True)
+    tree.write("Macros/macro" + sys.argv[1][:-4] + ".xml", encoding="UTF-8",
+               xml_declaration=True, pretty_print=True)
 except IOError as err:
     print(format(err))
 if len(sys.argv) == 3 and sys.argv[2] != "--nolog":
     print("Exported the macro file successful!")
-    print("Now copy the two folders onto the gma2 folder on your USB-drive and import the macro and run it\n"
-          "If you are running onPC and you are loading from the internal storage you need to change the SelectDrive"
+    print("Now copy the two folders onto the gma2 folder on your"
+          " USB-drive and import the macro and run it\n"
+          "If you are running onPC and you are loading from the internal"
+          " storage you need to change the SelectDrive"
           " to 1 im the macro")
 else:
     print("processed" + sys.argv[1])
